@@ -1,0 +1,27 @@
+# نشر المتجر الكامل (واجهة الزبون + لوحة الإدارة) على Render.
+# للنشر: https://render.com/deploy?repo=https://github.com/NOTWORK2/tabaa-store
+#
+# تنبيه مهم: الخطة المجانية لا تحفظ الملفات. تُمسح الطلبات والمنتجات والصور المرفوعة
+# عند كل إعادة تشغيل، والخدمة تتوقف بعد 15 دقيقة بلا زوار. تصلح للتجربة والعرض فقط.
+# للمتجر الحقيقي راجع قسم «القرص الدائم» أسفل الملف.
+services:
+  - type: web
+    name: tabaa-store
+    runtime: node
+    plan: free
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/store
+    envVars:
+      # كلمة مرور المدير (admin) عند أول تشغيل. يولّدها Render وتجدها في تبويب Environment للخدمة
+      - key: ADMIN_PASSWORD
+        generateValue: true
+      - key: TRUST_PROXY
+        value: "1"
+
+    # القرص الدائم (يتطلب خطة مدفوعة): احذف سطر «plan: free» أعلاه، ثم أزل علامة # عن الأسطر التالية
+    # وأضف إلى envVars المتغير DATA_DIR بالقيمة /var/data حتى تُحفظ البيانات على القرص.
+    # disk:
+    #   name: tabaa-data
+    #   mountPath: /var/data
+    #   sizeGB: 1

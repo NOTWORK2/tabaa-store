@@ -113,12 +113,19 @@ export const loginReset = (key) => attempts.delete(key);
 // أول تشغيل: حساب المدير بكلمة مرور عشوائية تُكتب في ملف داخل مجلد البيانات
 export function ensureOwner() {
   if (data.staff.length) return;
-  const password = DEMO ? 'admin' : crypto.randomBytes(9).toString('base64url');
+  // على الاستضافة لا يمكن قراءة ملف من القرص بسهولة، فتُضبط كلمة المرور الأولى من متغير البيئة ADMIN_PASSWORD
+  const fromEnv = DEMO ? '' : String(process.env.ADMIN_PASSWORD || '');
+  if (fromEnv && fromEnv.length < 10) throw new Error('ADMIN_PASSWORD يجب ألا تقل عن 10 أحرف');
+  const password = DEMO ? 'admin' : fromEnv || crypto.randomBytes(9).toString('base64url');
   data.staff.push({
     id: nextId('staff'), name: 'مدير المتجر', username: 'admin', passwordHash: hashPassword(password),
     isOwner: true, permissions: [], active: true, createdAt: now(),
   });
   save('staff');
+  if (fromEnv) {
+    console.log('تم إنشاء حساب المدير admin بكلمة المرور المضبوطة في ADMIN_PASSWORD');
+    return;
+  }
   const file = path.join(DATA_DIR, 'admin-login.txt');
   fs.writeFileSync(file,
     `بيانات دخول لوحة الإدارة (أول تشغيل)\n\nاسم المستخدم: admin\nكلمة المرور: ${password}\n\nغيّر كلمة المرور من صفحة «الموظفون والصلاحيات» ثم احذف هذا الملف.\n`, 'utf8');

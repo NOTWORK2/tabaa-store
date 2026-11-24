@@ -15,7 +15,8 @@ import { router as adminRouter } from './routes/admin.js';
 
 const app = express();
 app.disable('x-powered-by');
-app.set('trust proxy', 'loopback');
+// خلف وكيل الاستضافة (Render وأمثالها) يُضبط TRUST_PROXY=1 ليُعرف عنوان الزائر وأن الاتصال HTTPS
+app.set('trust proxy', Number(process.env.TRUST_PROXY) || process.env.TRUST_PROXY || 'loopback');
 app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Referrer-Policy', 'same-origin');
