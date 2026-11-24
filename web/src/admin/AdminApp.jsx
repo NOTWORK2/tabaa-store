@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, NavLink, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import './admin.css';
-import { api, fmt, media, useTitle } from '../lib.js';
+import { api, fmt, media, useTitle, STATIC } from '../lib.js';
 import { Icon, Spinner, ErrorBox, Field, Modal, Empty, useToast } from '../ui.jsx';
 import { AdminCtx, useAdmin, useAction } from './parts.jsx';
 import Dashboard from './Dashboard.jsx';
@@ -172,12 +172,13 @@ export default function AdminApp() {
           </nav>
           <div className="a-side-foot">
             <div className="a-user"><strong>{staff.name}</strong><span>{staff.isOwner ? 'مدير المتجر' : 'موظف'}</span></div>
-            <a className="a-nav" href="/" target="_blank" rel="noopener noreferrer"><Icon name="home" /><span>فتح المتجر</span></a>
+            <a className="a-nav" href={import.meta.env.BASE_URL} target="_blank" rel="noopener noreferrer"><Icon name="home" /><span>فتح المتجر</span></a>
             <button className="a-nav" onClick={() => setPwd(true)}><Icon name="shield" /><span>تغيير كلمة المرور</span></button>
             <button className="a-nav" onClick={logout}><Icon name="logout" /><span>تسجيل الخروج</span></button>
           </div>
         </aside>
         <main className="a-main">
+          {STATIC && <p className="a-demo-bar" role="note"><Icon name="eye" size={18} /> نسخة عرض للمعاينة ببيانات تجريبية. التعديلات لا تُحفظ هنا، وتعمل في المتجر الفعلي.</p>}
           <Routes>
             <Route index element={home ? <Navigate to={`/admin/${home}`} replace /> : <div className="a-page"><Empty title="لا توجد صلاحيات على حسابك">اطلب من مدير المتجر تحديد صلاحياتك.</Empty></div>} />
             <Route path="login" element={<Navigate to="/admin" replace />} />

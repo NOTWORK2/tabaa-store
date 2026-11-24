@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
-import { api, useLoad, fmt, media, fmtDateTime, fmtDate, STATUS, FLOW, PAY } from '../lib.js';
+import { api, useLoad, fmt, media, fmtDateTime, fmtDate, STATUS, FLOW, PAY, STATIC } from '../lib.js';
 import { Icon, Spinner, ErrorBox, Empty, Modal, Field, MoneyInput, useToast } from '../ui.jsx';
 import { Page, StatusBadge, PayBadge, DateRange, useAdmin, useAction } from './parts.jsx';
 
@@ -221,9 +221,11 @@ export function OrderDetail() {
                       <div><dt>السعر</dt><dd>{fmt(it.unitPrice)} قطعة + {fmt(it.printPrice)} طباعة = <b>{fmt(it.lineTotal)}</b></dd></div>
                       {it.unitCost !== undefined && <div><dt>التكلفة</dt><dd>{fmt(it.unitCost)} قطعة + {fmt(it.printCost)} طباعة (للواحدة)</dd></div>}
                     </dl>
-                    <a className="btn btn-ghost btn-sm" href={`/api/admin/orders/${o.id}/items/${it.id}/print-file`} download>
-                      <Icon name="download" size={16} /> تنزيل ملف الطباعة الأصلي
-                    </a>
+                    {STATIC ? <span className="muted">تنزيل ملف الطباعة الأصلي متاح في المتجر الفعلي</span> : (
+                      <a className="btn btn-ghost btn-sm" href={`/api/admin/orders/${o.id}/items/${it.id}/print-file`} download>
+                        <Icon name="download" size={16} /> تنزيل ملف الطباعة الأصلي
+                      </a>
+                    )}
                   </div>
                 </li>
               ))}

@@ -183,8 +183,70 @@ function createOrder(snap, b = {}) {
   return { order: publicOrder(snap, order) };
 }
 
+/* ───── لوحة الإدارة: نسخة عرض للقراءة فقط من لقطة ببيانات تجريبية ───── */
+
+let adminPromise = null;
+function adminDemo() {
+  adminPromise ??= fetch(`${BASE}admin-demo.json`, { cache: 'no-cache' })
+    .then((r) => (r.ok ? r.json() : Promise.reject(new Error('admin-demo'))))
+    .catch(() => {
+      adminPromise = null;
+      fail('تعذّر تحميل بيانات العرض. تحقق من الإنترنت ثم حاول مجددًا', 0);
+    });
+  return adminPromise;
+}
+
+const phoneDigits = (s) => latin(s).replace(/\D/g, '').replace(/^0+/, '');
+const dayOf = (iso) => new Date(Date.parse(iso) + 4 * 3600000).toISOString().slice(0, 10);
+
+async function adminApi(route, query, method) {
+  const demo = await adminDemo();
+  const q = new URLSearchParams(query);
+  if (method !== 'GET') {
+    if (route === '/admin/login') return { staff: demo.session.staff };
+    if (route === '/admin/logout') return { ok: true };
+    fail('هذه نسخة عرض للمعاينة فقط: التعديلات لا تُحفظ هنا، وتعمل في المتجر الفعلي');
+  }
+  if (route === '/admin/orders') {
+    const term = (q.get('q') || '').trim().toLowerCase();
+    const digits = phoneDigits(term);
+    const [status, payment, from, to] = ['status', 'payment', 'from', 'to'].map((k) => q.get(k));
+    const rows = demo.orders.filter((o) => (!status || o.status === status) && (!payment || o.paymentStatus === payment)
+      && (!from || dayOf(o.createdAt) >= from) && (!to || dayOf(o.createdAt) <= to)
+      && (!term || o.number.toLowerCase().includes(term) || o.customerName.toLowerCase().includes(term)
+        || (digits.length >= 3 && o.customerPhone.replace(/\D/g, '').includes(digits))));
+    const page = Math.max(1, Number(q.get('page')) || 1);
+    return {
+      total: rows.length, page, pages: Math.max(1, Math.ceil(rows.length / 25)),
+      orders: rows.slice((page - 1) * 25, page * 25), counts: demo.orderCounts,
+    };
+  }
+  if (route === '/admin/customers') {
+    const term = (q.get('q') || '').trim().toLowerCase();
+    const digits = phoneDigits(term);
+    return {
+      customers: demo.customers.filter((c) => !term || c.name.toLowerCase().includes(term)
+        || (digits.length >= 3 && c.phone.replace(/\D/g, '').includes(digits))),
+    };
+  }
+  if (route === '/admin/expenses') {
+    const [from, to, category] = ['from', 'to', 'category'].map((k) => q.get(k));
+    const expenses = demo.expenses.filter((e) => (!from || e.date >= from) && (!to || e.date <= to) && (!category || e.category === category));
+    return { expenses, total: expenses.reduce((s, e) => s + e.amount, 0) };
+  }
+  if (route === '/admin/dashboard') {
+    // أرقام اللقطة محسوبة وقت النشر لثلاث فترات: اليوم، الأسبوع، الشهر
+    const span = (Date.parse(q.get('to')) - Date.parse(q.get('from'))) / 86400000 + 1;
+    return demo.dashboard[span <= 1 ? 'day' : span <= 7 ? 'week' : 'month'];
+  }
+  return demo.pages[route] || fail('غير موجود في نسخة العرض', 404);
+}
+
 export async function staticApi(path, { method = 'GET', body } = {}) {
-  if (path.startsWith('/admin')) fail('لوحة الإدارة غير متاحة في هذه النسخة من الموقع', 404);
+  if (path.startsWith('/admin')) {
+    const [adminRoute, adminQuery = ''] = path.split('?');
+    return adminApi(adminRoute, adminQuery, method);
+  }
   const snap = await snapshot();
   const [route, query = ''] = path.split('?');
   const parts = route.split('/').filter(Boolean).map(decodeURIComponent);

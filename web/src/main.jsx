@@ -9,7 +9,7 @@ import '@fontsource-variable/alexandria';
 import '@fontsource/aref-ruqaa/arabic-700.css';
 import './styles.css';
 import './store/storefront.css';
-import { ToastProvider, Spinner, Empty } from './ui.jsx';
+import { ToastProvider, Spinner } from './ui.jsx';
 import StoreLayout from './store/StoreLayout.jsx';
 import { Home, Pick } from './store/Home.jsx';
 import { Collection } from './store/Collection.jsx';
@@ -18,10 +18,8 @@ import Studio from './store/Studio.jsx';
 import { Cart, Checkout, OrderDone, NotFound } from './store/Cart.jsx';
 
 // لوحة الإدارة تُحمَّل عند الحاجة فقط حتى تبقى واجهة الزبون خفيفة
-// النسخة الثابتة (GitHub Pages) لا تحتوي لوحة الإدارة لأنها تحتاج الخادم
-const Admin = import.meta.env.VITE_STATIC === '1'
-  ? () => <div className="wrap pad"><Empty title="لوحة الإدارة غير متاحة هنا">هذه نسخة عرض ثابتة من واجهة المتجر. لوحة الإدارة تعمل في النسخة الكاملة على الخادم.</Empty></div>
-  : lazy(() => import('./admin/AdminApp.jsx'));
+// في النسخة الثابتة (GitHub Pages) تعمل اللوحة كنسخة عرض للقراءة فقط ببيانات تجريبية
+const Admin = lazy(() => import('./admin/AdminApp.jsx'));
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
