@@ -7,7 +7,8 @@ function arg(name) {
 }
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-export const DATA_DIR = path.resolve(ROOT, arg('data') || process.env.DATA_DIR || 'data');
+export const DEMO = process.argv.includes('--demo');
+export const DATA_DIR = path.resolve(ROOT, arg('data') || process.env.DATA_DIR || (DEMO ? 'data/demo' : 'data'));
 export const PUBLIC_DIR = path.join(DATA_DIR, 'storage', 'public');
 export const PRIVATE_DIR = path.join(DATA_DIR, 'storage', 'private');
 export const PORT = Number(arg('port') || process.env.PORT || 3000);

@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import { DATA_DIR, PERMISSIONS } from './config.js';
+import { DATA_DIR, DEMO, PERMISSIONS } from './config.js';
 import { data, save, nextId, now } from './store.js';
 import { HttpError } from './util.js';
 
@@ -113,7 +113,7 @@ export const loginReset = (key) => attempts.delete(key);
 // أول تشغيل: حساب المدير بكلمة مرور عشوائية تُكتب في ملف داخل مجلد البيانات
 export function ensureOwner() {
   if (data.staff.length) return;
-  const password = crypto.randomBytes(9).toString('base64url');
+  const password = DEMO ? 'admin' : crypto.randomBytes(9).toString('base64url');
   data.staff.push({
     id: nextId('staff'), name: 'مدير المتجر', username: 'admin', passwordHash: hashPassword(password),
     isOwner: true, permissions: [], active: true, createdAt: now(),
