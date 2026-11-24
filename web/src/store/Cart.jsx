@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { api, useLoad, fmt, media, cartStore, useCart, useTitle, sizeLabel, fmtDateTime, toLatin } from '../lib.js';
+import { api, useLoad, fmt, media, cartStore, useCart, useTitle, sizeLabel, fmtDateTime, toLatin, STATIC } from '../lib.js';
 import { Icon, Mockup, Spinner, ErrorBox, Empty, Stepper, Field, WhatsAppIcon, useToast } from '../ui.jsx';
 import { useStore } from './StoreLayout.jsx';
 
@@ -348,8 +348,10 @@ export function OrderDone() {
     <div className="wrap section done">
       <div className="done-head">
         <span className="done-check"><Icon name="check" size={34} /></span>
-        <h1>{o.status === 'new' ? 'تم تسجيل طلبك بنجاح' : 'تفاصيل طلبك'}</h1>
-        <p>احتفظ برابط هذه الصفحة لمتابعة طلبك.</p>
+        <h1>{STATIC ? 'طلبك جاهز للإرسال' : o.status === 'new' ? 'تم تسجيل طلبك بنجاح' : 'تفاصيل طلبك'}</h1>
+        <p>{STATIC
+          ? 'أرسله الآن إلى المتجر عبر واتساب ليصل ويتم تأكيده. لا يُسجَّل الطلب لدى المتجر قبل إرسال الرسالة.'
+          : 'احتفظ برابط هذه الصفحة لمتابعة طلبك.'}</p>
         <button className="order-number" onClick={copy} title="نسخ رقم الطلب">
           <span>رقم الطلب</span><strong dir="ltr">{o.number}</strong><Icon name="copy" size={18} />
         </button>
@@ -376,7 +378,9 @@ export function OrderDone() {
         <ul className="mini-lines">
           {o.items.map((it) => (
             <li key={it.id}>
-              <img className="mini-thumb" src={media(it.previewImage)} alt="" />
+              {it.mock
+                ? <Mockup image={it.mock.image} design={it.mock.design} area={it.mock.area} className="mini-thumb" />
+                : <img className="mini-thumb" src={media(it.previewImage)} alt="" />}
               <div><strong>{it.productName}</strong><span>{it.colorName} · {sizeLabel(it.size)} · التصميم: {it.designName} · ×{it.qty}</span></div>
               <b>{fmt(it.lineTotal)}</b>
             </li>
@@ -396,7 +400,7 @@ export function OrderDone() {
           {o.notes && <div><dt>ملاحظات</dt><dd>{o.notes}</dd></div>}
         </dl>
       </section>
-      <ReturnPanel key={o.number} order={o} onUpdate={(order) => setData({ order })} />
+      {!STATIC && <ReturnPanel key={o.number} order={o} onUpdate={(order) => setData({ order })} />}
       <p className="center"><Link to="/design" className="btn btn-ghost">صمّم قطعة أخرى</Link></p>
     </div>
   );

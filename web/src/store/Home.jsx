@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { fmt, media, printLink, useTitle } from '../lib.js';
+import { fmt, media, printLink, useTitle, asset } from '../lib.js';
 import { Icon, Empty } from '../ui.jsx';
 import { useStore } from './StoreLayout.jsx';
 import { PrintGrid } from './Collection.jsx';
@@ -25,13 +25,13 @@ function CampaignPhoto({ cover }) {
   }, []);
   return (
     <figure className="campaign-photo" ref={figure}>
-      <img src="/editorial/atelier-hero.webp" alt="تيشيرت قطني رملي مطبوع عليه اسم عمر بن الخطاب بالحبر العنّابي" fetchPriority="high" />
+      <img src={asset("editorial/atelier-hero.webp")} alt="تيشيرت قطني رملي مطبوع عليه اسم عمر بن الخطاب بالحبر العنّابي" fetchPriority="high" />
       {run > 0 && <div key={run} className="print-sequence" aria-hidden="true"
         style={{ '--run-state': ready && visible && inView ? 'running' : 'paused' }}
         onAnimationEnd={(event) => { if (event.target === event.currentTarget) setRun(0); }}>
         <TransferPeel />
         <div className="print-workshop-frame">
-          <img src="/editorial/heat-press.webp" alt="" onLoad={() => setReady(true)} onError={() => setRun(0)} />
+          <img src={asset("editorial/heat-press.webp")} alt="" onLoad={() => setReady(true)} onError={() => setRun(0)} />
           <span>الطباعة بالمكبس الحراري</span>
         </div>
       </div>}
@@ -100,7 +100,7 @@ export function Home() {
         {featured.length ? <PrintGrid items={featured} /> : <CategoryGrid categories={categories} />}
       </section>
       <section className="wrap workshop">
-        <img className="workshop-photo" src="/editorial/heat-press.webp" alt="تيشيرت على مكبس حراري مفتوح أثناء نزع ورقة النقل عن طبعة عمر بن الخطاب" loading="lazy" />
+        <img className="workshop-photo" src={asset("editorial/heat-press.webp")} alt="تيشيرت على مكبس حراري مفتوح أثناء نزع ورقة النقل عن طبعة عمر بن الخطاب" loading="lazy" />
         <div className="workshop-copy">
           <p className="print-kicker"><StudioMark size={18} /> داخل المشغل</p>
           <h2>من اختيارك إلى القماش.</h2>

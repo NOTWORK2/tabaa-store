@@ -9,7 +9,9 @@
     "start": "node server/index.js",
     "demo": "node server/index.js --demo",
     "dev:web": "vite",
-    "dev:api": "node --watch server/index.js"
+    "dev:api": "node --watch server/index.js",
+    "pages:build": "node scripts/pages.mjs",
+    "pages:deploy": "node scripts/pages.mjs --deploy"
   },
   "dependencies": {
     "@fontsource-variable/alexandria": "^5.3.0",

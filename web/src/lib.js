@@ -1,7 +1,14 @@
 import { useEffect, useState, useSyncExternalStore, useCallback } from 'react';
+import { staticApi } from './static-api.js';
+
+// النسخة الثابتة (GitHub Pages) تُبنى بـ VITE_STATIC=1: واجهة الزبون فقط، بلا خادم
+export const STATIC = import.meta.env.VITE_STATIC === '1';
+/** مسار ملف عام (من web/public) يحترم المسار الأساسي للموقع */
+export const asset = (p) => `${import.meta.env.BASE_URL}${String(p).replace(/^\//, '')}`;
 
 /* ───── الاتصال بالخادم ───── */
 export async function api(path, { method = 'GET', body, form } = {}) {
+  if (STATIC) return staticApi(path, { method, body });
   const opt = { method, headers: {}, credentials: 'same-origin' };
   if (form) opt.body = form;
   else if (body !== undefined) {
@@ -48,7 +55,7 @@ export function useLoad(path, deps = []) {
 }
 
 /* ───── تنسيق ───── */
-export const media = (rel) => (rel ? `/media/${rel}${rel.startsWith('categories/') ? '?v=lookbook-1' : ''}` : null);
+export const media = (rel) => (rel ? `${import.meta.env.BASE_URL}media/${rel}${rel.startsWith('categories/') ? '?v=lookbook-1' : ''}` : null);
 
 export function printLink(item) {
   const params = new URLSearchParams({ design: item.id, product: item.productId, color: item.colorId });
