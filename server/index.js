@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import express from 'express';
 import multer from 'multer';
-import { ROOT, PORT, PUBLIC_DIR, DATA_DIR } from './config.js';
+import { ROOT, PORT, PUBLIC_DIR, DATA_DIR, DEMO } from './config.js';
 import './store.js';
 import { ensureOwner } from './auth.js';
 import { seedIfEmpty } from './seed.js';
@@ -60,11 +60,11 @@ await seedIfEmpty();
 await installCatalogPhotos();
 await installPrintCollection();
 
-app.listen(PORT, () => {
+app.listen(PORT, DEMO ? '127.0.0.1' : undefined, () => {
   const lan = Object.values(os.networkInterfaces()).flat().find((n) => n && n.family === 'IPv4' && !n.internal)?.address;
   console.log(`المتجر يعمل: http://localhost:${PORT}`);
   console.log(`لوحة الإدارة: http://localhost:${PORT}/admin`);
-  if (lan) console.log(`من الهاتف على نفس الشبكة: http://${lan}:${PORT}`);
+  if (lan && !DEMO) console.log(`من الهاتف على نفس الشبكة: http://${lan}:${PORT}`);
   console.log(`مجلد البيانات: ${DATA_DIR}`);
   if (!hasDist) console.log('تنبيه: الواجهة غير مبنية بعد. نفّذ: npm run build');
 });
